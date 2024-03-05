@@ -20,7 +20,7 @@ cd BookStoreApp
 
 3. Configure Env:
 - Add a database connection string to MongoDB to the `.env` file under `DB_URL`.
-- Specify the desired port in the `.env` file.
+- Specify the desired port in the `.env` file, e.g :80
 
 4. Run the application:
 ```
@@ -28,7 +28,22 @@ go run .
 ```
 
 
-5. Access the application in your web browser at [http://localhost:80](http://localhost:80).
+5. Access the application in your web browser at [http://localhost{:port}](http://localhost{:port).
+
+## MongoDB
+In MongoDB add a DB "readinglist" and collection "books" with data to fulfil below struct:
+```
+type bookData struct {
+	ID        primitive.ObjectID `json:"_id" bson:"_id"`
+	CreatedAt time.Time          `json:"createdAt"`
+	Title     string             `json:"title"`
+	Published int                `json:"published,omitempty"`
+	Pages     int                `json:"pages,omitempty"`
+	Genres    []string           `json:"genres,omitempty"`
+	Rating    float64            `json:"rating,omitempty"`
+	Version   int32              `json:"version,omitempty"`
+}
+```
 
 ## Usage
 - Browse through existing book lists.
