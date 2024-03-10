@@ -19,8 +19,19 @@ cd BookStoreApp
 ```
 
 3. Configure Env:
-- Add a database connection string to MongoDB to the `.env` file under `DB_URL`.
-- Specify the desired port in the `.env` file, e.g :80
+- Create an .env file in the root of BookStoreApp
+```
+touch .env
+```
+.env file example:
+```
+DB_URL={MongoDB Connection String}
+ENV=dev
+PORT=80
+SITE_URL=http://localhost
+VERSION=1.0
+```
+- Note the application expects these .env keys and values to be populated or it'll fail.
 
 4. Run the application:
 ```
