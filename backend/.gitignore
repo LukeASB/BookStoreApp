@@ -1,0 +1,26 @@
+# Compiled Object files
+*.o
+*.a
+*.out
+
+# Ignored binary files
+bin/
+*.exe
+
+# Ignored build directories
+build/
+
+# Dependency directories
+vendor/
+node_modules/
+
+# IDE-specific files
+.vscode/
+.idea/
+
+# Ignore system files
+.DS_Store
+Thumbs.db
+
+# Ignore .env file
+.env
