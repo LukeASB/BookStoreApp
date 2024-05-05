@@ -13,23 +13,6 @@ type Input struct {
 	Rating    float64  `json:"rating"`
 }
 
-/* 💡LSB - Review - the DB initialisation should be in it's own class. Then we can dependency inject the DB/Collection into model. */
-/* https://chatgpt.com/c/ff10255c-351b-4a40-8fea-bc4c1ccd6212 */
-// var dbClient *initialisers.DB
-// var collection *initialisers.BookCollection
-
-/*
-Sets up the DB Client.
-
-Parameters:
-
-	param1: pointer of DB client
-*/
-// func SetDBClient(client *initialisers.DB) {
-// 	dbClient = client
-// 	collection = initialisers.NewBookModel(dbClient)
-// }
-
 type Model struct {
 }
 
