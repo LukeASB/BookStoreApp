@@ -13,8 +13,10 @@ type Input struct {
 	Rating    float64  `json:"rating"`
 }
 
-var dbClient *initialisers.DB
-var collection *initialisers.BookCollection
+/* 💡LSB - Review - the DB initialisation should be in it's own class. Then we can dependency inject the DB/Collection into model. */
+/* https://chatgpt.com/c/ff10255c-351b-4a40-8fea-bc4c1ccd6212 */
+// var dbClient *initialisers.DB
+// var collection *initialisers.BookCollection
 
 /*
 Sets up the DB Client.
@@ -23,10 +25,10 @@ Parameters:
 
 	param1: pointer of DB client
 */
-func SetDBClient(client *initialisers.DB) {
-	dbClient = client
-	collection = initialisers.NewBookModel(dbClient)
-}
+// func SetDBClient(client *initialisers.DB) {
+// 	dbClient = client
+// 	collection = initialisers.NewBookModel(dbClient)
+// }
 
 type Model struct {
 }
@@ -57,7 +59,7 @@ func (m *Model) Insert(input Input) (interface{}, *data.Book, error) {
 		Rating:    input.Rating,
 	}
 
-	id, err := collection.Insert(data)
+	id, err := initialisers.Collection.Insert(data)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -73,7 +75,7 @@ Returns:
 	return2: error
 */
 func (m *Model) GetAll() ([]*data.Book, error) {
-	data, err := collection.GetAll()
+	data, err := initialisers.Collection.GetAll()
 	if err != nil {
 		return nil, err
 	}
@@ -93,7 +95,7 @@ Returns:
 	return2: error
 */
 func (m *Model) Get(id string) (*data.Book, error) {
-	data, err := collection.Get(id)
+	data, err := initialisers.Collection.Get(id)
 	if err != nil {
 		return nil, err
 	}
@@ -114,7 +116,7 @@ Returns:
 	return2: error
 */
 func (m *Model) Update(id string, data *data.Book) error {
-	err := collection.Update(data)
+	err := initialisers.Collection.Update(data)
 	if err != nil {
 		return err
 	}
@@ -133,7 +135,7 @@ Returns:
 	return1: error
 */
 func (m *Model) Delete(id string) error {
-	err := collection.Delete(id)
+	err := initialisers.Collection.Delete(id)
 	if err != nil {
 		return err
 	}
