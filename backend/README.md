@@ -1,5 +1,5 @@
 # BookStoreApp
-Full-Stack Book Store App using MVC design pattern with Golang, MongoDB with a basic UI.
+Full-Stack Book Store App using MVC design pattern with Golang, MongoDB with a basic UI for testing.
 
 ## Description
 The Basic Book Store App is a web application that displays book recommendations. Users can browse through existing book lists and create their own recommendations. The app simplifies the process of sharing top book picks with friends and family, eliminating the need to respond to individual requests.
