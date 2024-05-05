@@ -18,6 +18,26 @@ const (
 	CREATEHTML = "./ui/html/pages/create.html"
 )
 
+type View struct {
+	BASEHTML   string
+	NAVHTML    string
+	HOMEHTML   string
+	VIEWHTML   string
+	CREATEHTML string
+}
+
+// https://chatgpt.com/c/ff10255c-351b-4a40-8fea-bc4c1ccd6212
+// Start converting to struct funcs
+func NewView() *View {
+	return &View{
+		BASEHTML:   "./ui/html/base.html",
+		NAVHTML:    "./ui/html/partials/nav.html",
+		HOMEHTML:   "./ui/html/pages/home.html",
+		VIEWHTML:   "./ui/html/pages/view.html",
+		CREATEHTML: "./ui/html/pages/create.html",
+	}
+}
+
 type Envelope map[string]any
 
 /*
@@ -33,7 +53,7 @@ Returns:
 	return1: slice of bytes
 	return2: error
 */
-func RenderJSON(data Envelope) ([]byte, error) {
+func (v *View) RenderJSON(data Envelope) ([]byte, error) {
 	jsonResponse, err := json.MarshalIndent(data, "", "\t")
 
 	if err != nil {
@@ -45,23 +65,7 @@ func RenderJSON(data Envelope) ([]byte, error) {
 	return jsonResponse, nil
 }
 
-/*
-ReadJSON decodes the JSON data from the request body r.Body into the provided destination interface dst,
-which must be a pointer to the appropriate data structure.
-It sets a maximum size limit for the request body to prevent denial of service attacks.
-The function returns an error if there are any issues during the decoding process,
-such as invalid JSON format or exceeding the maximum size limit.
-
-Parameters:
-
-	param1: w http.ResponseWriter
-	param2: r *http.Request
-
-Returns:
-
-	return1: error
-*/
-func ReadJSON(w http.ResponseWriter, r *http.Request, data any) error {
+func (v *View) ReadJSON(w http.ResponseWriter, r *http.Request, data any) error {
 	maxBytes := 1_048_576
 	r.Body = http.MaxBytesReader(w, r.Body, int64(maxBytes))
 
@@ -95,7 +99,7 @@ Returns:
 
 	return1: error
 */
-func BookCreateForm(w http.ResponseWriter, r *http.Request) error {
+func (v *View) BookCreateForm(w http.ResponseWriter, r *http.Request) error {
 	files := []string{BASEHTML, NAVHTML, CREATEHTML}
 
 	ts, err := template.ParseFiles(files...)
@@ -127,7 +131,7 @@ Returns:
 	return1: slice of bytes
 	return1: error
 */
-func BookCreateProcess(w http.ResponseWriter, r *http.Request) ([]byte, error) {
+func (v *View) BookCreateProcess(w http.ResponseWriter, r *http.Request) ([]byte, error) {
 	err := r.ParseForm()
 
 	if err != nil {
@@ -180,6 +184,36 @@ func BookCreateProcess(w http.ResponseWriter, r *http.Request) ([]byte, error) {
 }
 
 /*
+Renders the home page with a list of books, parsing template files and executing the template with book data.
+Returning any error encountered.
+
+Parameters:
+
+	param1: w http.ResponseWriter
+	param2: pointer of a slice of book data
+
+Returns:
+
+	return1: error
+*/
+func (v *View) BookHome(w http.ResponseWriter, books []*data.Book) error {
+	files := []string{BASEHTML, NAVHTML, HOMEHTML}
+
+	ts, err := template.ParseFiles(files...)
+	if err != nil {
+		return err
+	}
+
+	err = ts.ExecuteTemplate(w, "base", books)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+/*
 Renders the book view page, parsing template files, executing the template with book data.
 Returning any error encountered.
 
@@ -193,7 +227,7 @@ Returns:
 
 	return1: error
 */
-func BookView(w http.ResponseWriter, id string, book *data.Book) error {
+func (v *View) BookView(w http.ResponseWriter, id string, book *data.Book) error {
 	files := []string{BASEHTML, NAVHTML, VIEWHTML}
 
 	// Used to convert comma-separated genres to a slice within the template.
@@ -206,36 +240,6 @@ func BookView(w http.ResponseWriter, id string, book *data.Book) error {
 	}
 
 	err = ts.ExecuteTemplate(w, "base", book)
-
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-/*
-Renders the home page with a list of books, parsing template files and executing the template with book data.
-Returning any error encountered.
-
-Parameters:
-
-	param1: w http.ResponseWriter
-	param2: pointer of a slice of book data
-
-Returns:
-
-	return1: error
-*/
-func BookHome(w http.ResponseWriter, books []*data.Book) error {
-	files := []string{BASEHTML, NAVHTML, HOMEHTML}
-
-	ts, err := template.ParseFiles(files...)
-	if err != nil {
-		return err
-	}
-
-	err = ts.ExecuteTemplate(w, "base", books)
 
 	if err != nil {
 		return err
