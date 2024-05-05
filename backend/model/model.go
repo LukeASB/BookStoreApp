@@ -28,6 +28,13 @@ func SetDBClient(client *initialisers.DB) {
 	collection = initialisers.NewBookModel(dbClient)
 }
 
+type Model struct {
+}
+
+func NewModel() *Model {
+	return &Model{}
+}
+
 /*
 Calls the DB to perform a create operation.
 
@@ -40,7 +47,7 @@ Returns:
 	return1: database id of inserted value
 	return2: error
 */
-func Insert(input Input) (interface{}, *data.Book, error) {
+func (m *Model) Insert(input Input) (interface{}, *data.Book, error) {
 	data := &data.Book{
 		ID:        "",
 		Title:     input.Title,
@@ -65,7 +72,7 @@ Returns:
 	return1: slice of a pointer of books
 	return2: error
 */
-func GetAll() ([]*data.Book, error) {
+func (m *Model) GetAll() ([]*data.Book, error) {
 	data, err := collection.GetAll()
 	if err != nil {
 		return nil, err
@@ -85,7 +92,7 @@ Returns:
 	return1: slice of a pointer of books
 	return2: error
 */
-func Get(id string) (*data.Book, error) {
+func (m *Model) Get(id string) (*data.Book, error) {
 	data, err := collection.Get(id)
 	if err != nil {
 		return nil, err
@@ -106,7 +113,7 @@ Returns:
 	return1: slice of a pointer of books
 	return2: error
 */
-func Update(id string, data *data.Book) error {
+func (m *Model) Update(id string, data *data.Book) error {
 	err := collection.Update(data)
 	if err != nil {
 		return err
@@ -125,7 +132,7 @@ Returns:
 
 	return1: error
 */
-func Delete(id string) error {
+func (m *Model) Delete(id string) error {
 	err := collection.Delete(id)
 	if err != nil {
 		return err

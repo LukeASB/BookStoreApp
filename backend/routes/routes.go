@@ -3,6 +3,7 @@ package routes
 import (
 	"net/http"
 	controller "readinglistapp/controller"
+	"readinglistapp/model"
 	view "readinglistapp/view"
 
 	"github.com/gorilla/mux"
@@ -19,6 +20,7 @@ Parameters:
 */
 func SetUpRoutes(router *mux.Router) {
 	v := view.NewView()
+	m := model.NewModel()
 
 	fileServer := http.FileServer(http.Dir("./ui/static/"))
 
@@ -26,10 +28,10 @@ func SetUpRoutes(router *mux.Router) {
 	router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", fileServer))
 
 	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		controller.Home(w, r, v)
+		controller.Home(w, r, v, m)
 	})
 	router.HandleFunc("/book/view", func(w http.ResponseWriter, r *http.Request) {
-		controller.BookView(w, r, v)
+		controller.BookView(w, r, v, m)
 	})
 	router.HandleFunc("/book/create", func(w http.ResponseWriter, r *http.Request) {
 		controller.BookCreate(w, r, v)
@@ -40,22 +42,22 @@ func SetUpRoutes(router *mux.Router) {
 	})
 
 	router.HandleFunc("/v1/books", func(w http.ResponseWriter, r *http.Request) {
-		controller.GetBooksHandler(w, r, v)
+		controller.GetBooksHandler(w, r, v, m)
 	}).Methods(http.MethodGet)
 
 	router.HandleFunc("/v1/books", func(w http.ResponseWriter, r *http.Request) {
-		controller.CreateBooksHandler(w, r, v)
+		controller.CreateBooksHandler(w, r, v, m)
 	}).Methods(http.MethodPost)
 
 	router.HandleFunc("/v1/books/{id}", func(w http.ResponseWriter, r *http.Request) {
-		controller.GetBook(w, r, v)
+		controller.GetBook(w, r, v, m)
 	}).Methods(http.MethodGet)
 
 	router.HandleFunc("/v1/books/{id}", func(w http.ResponseWriter, r *http.Request) {
-		controller.UpdateBook(w, r, v)
+		controller.UpdateBook(w, r, v, m)
 	}).Methods(http.MethodPut)
 
 	router.HandleFunc("/v1/books/{id}", func(w http.ResponseWriter, r *http.Request) {
-		controller.DeleteBook(w, r, v)
+		controller.DeleteBook(w, r, v, m)
 	}).Methods(http.MethodDelete)
 }

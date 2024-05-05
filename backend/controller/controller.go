@@ -53,13 +53,13 @@ Parameters:
 	param1: w http.ResponseWriter
 	param2: r *http.Request
 */
-func Home(w http.ResponseWriter, r *http.Request, v *view.View) {
+func Home(w http.ResponseWriter, r *http.Request, v *view.View, m *model.Model) {
 	if r.URL.Path != "/" {
 		http.NotFound(w, r)
 		return
 	}
 
-	books, err := model.GetAll()
+	books, err := m.GetAll()
 	if helper.IsHTTPStatusError(w, err, http.StatusInternalServerError) {
 		return
 	}
@@ -81,7 +81,7 @@ Parameters:
 	param1: w http.ResponseWriter
 	param2: r *http.Request
 */
-func BookView(w http.ResponseWriter, r *http.Request, v *view.View) {
+func BookView(w http.ResponseWriter, r *http.Request, v *view.View, m *model.Model) {
 	id := r.URL.Query().Get("id")
 
 	if len(id) == 0 {
@@ -89,7 +89,7 @@ func BookView(w http.ResponseWriter, r *http.Request, v *view.View) {
 		return
 	}
 
-	book, err := model.Get(id)
+	book, err := m.Get(id)
 
 	if helper.IsHTTPStatusError(w, err, http.StatusInternalServerError) {
 		return
@@ -179,9 +179,9 @@ Parameters:
 	param1: w http.ResponseWriter
 	param2: r *http.Request
 */
-func GetBooksHandler(w http.ResponseWriter, r *http.Request, v *view.View) {
+func GetBooksHandler(w http.ResponseWriter, r *http.Request, v *view.View, m *model.Model) {
 	fmt.Println("GetBooksHandler")
-	books, err := model.GetAll()
+	books, err := m.GetAll()
 
 	if helper.IsHTTPStatusError(w, err, http.StatusInternalServerError) {
 		return
@@ -206,7 +206,7 @@ Parameters:
 	param1: w http.ResponseWriter
 	param2: r *http.Request
 */
-func CreateBooksHandler(w http.ResponseWriter, r *http.Request, v *view.View) {
+func CreateBooksHandler(w http.ResponseWriter, r *http.Request, v *view.View, m *model.Model) {
 	var input model.Input
 
 	err := v.ReadJSON(w, r, &input)
@@ -215,7 +215,7 @@ func CreateBooksHandler(w http.ResponseWriter, r *http.Request, v *view.View) {
 		return
 	}
 
-	id, book, err := model.Insert(input)
+	id, book, err := m.Insert(input)
 
 	if helper.IsHTTPStatusError(w, err, http.StatusInternalServerError) {
 		return
@@ -243,7 +243,7 @@ Parameters:
 	param1: http.ResponseWriter
 	param2: *http.Request
 */
-func GetBook(w http.ResponseWriter, r *http.Request, v *view.View) {
+func GetBook(w http.ResponseWriter, r *http.Request, v *view.View, m *model.Model) {
 	var err error
 	vars := mux.Vars(r)
 	id := vars["id"]
@@ -253,7 +253,7 @@ func GetBook(w http.ResponseWriter, r *http.Request, v *view.View) {
 		return
 	}
 
-	book, err := model.Get(id)
+	book, err := m.Get(id)
 
 	if err != nil {
 		switch {
@@ -285,7 +285,7 @@ Parameters:
 	param1: http.ResponseWriter
 	param2: *http.Request
 */
-func UpdateBook(w http.ResponseWriter, r *http.Request, v *view.View) {
+func UpdateBook(w http.ResponseWriter, r *http.Request, v *view.View, m *model.Model) {
 	var err error
 	vars := mux.Vars(r)
 	id := vars["id"]
@@ -295,7 +295,7 @@ func UpdateBook(w http.ResponseWriter, r *http.Request, v *view.View) {
 		return
 	}
 
-	book, err := model.Get(id)
+	book, err := m.Get(id)
 
 	if err != nil {
 		switch {
@@ -341,7 +341,7 @@ func UpdateBook(w http.ResponseWriter, r *http.Request, v *view.View) {
 		book.Rating = *input.Rating
 	}
 
-	err = model.Update(id, book)
+	err = m.Update(id, book)
 
 	if helper.IsHTTPStatusError(w, err, http.StatusInternalServerError) {
 		return
@@ -367,7 +367,7 @@ Parameters:
 	param1: http.ResponseWriter
 	param2: *http.Request
 */
-func DeleteBook(w http.ResponseWriter, r *http.Request, v *view.View) {
+func DeleteBook(w http.ResponseWriter, r *http.Request, v *view.View, m *model.Model) {
 	var err error
 	vars := mux.Vars(r)
 	id := vars["id"]
@@ -377,7 +377,7 @@ func DeleteBook(w http.ResponseWriter, r *http.Request, v *view.View) {
 		return
 	}
 
-	err = model.Delete(id)
+	err = m.Delete(id)
 
 	if err != nil {
 		switch {

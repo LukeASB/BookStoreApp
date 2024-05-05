@@ -26,7 +26,6 @@ type View struct {
 	CREATEHTML string
 }
 
-// https://chatgpt.com/c/ff10255c-351b-4a40-8fea-bc4c1ccd6212
 // Start converting to struct funcs
 func NewView() *View {
 	return &View{
