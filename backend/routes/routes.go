@@ -3,6 +3,8 @@ package routes
 import (
 	"net/http"
 	controller "readinglistapp/controller"
+	"readinglistapp/model"
+	view "readinglistapp/view"
 
 	"github.com/gorilla/mux"
 )
@@ -17,20 +19,45 @@ Parameters:
 	param1: gorilla mux router
 */
 func SetUpRoutes(router *mux.Router) {
+	v := view.NewView()
+	m := model.NewModel()
+
 	fileServer := http.FileServer(http.Dir("./ui/static/"))
 
 	// Register the file server handler with the /static/ route prefix
 	router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", fileServer))
 
-	router.HandleFunc("/", controller.Home)
-	router.HandleFunc("/book/view", controller.BookView)
-	router.HandleFunc("/book/create", controller.BookCreate)
+	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		controller.Home(w, r, v, m)
+	})
+	router.HandleFunc("/book/view", func(w http.ResponseWriter, r *http.Request) {
+		controller.BookView(w, r, v, m)
+	})
+	router.HandleFunc("/book/create", func(w http.ResponseWriter, r *http.Request) {
+		controller.BookCreate(w, r, v)
+	})
 
-	router.HandleFunc("/v1/healthcheck", controller.HealthCheck)
+	router.HandleFunc("/v1/healthcheck", func(w http.ResponseWriter, r *http.Request) {
+		controller.HealthCheck(w, r, v)
+	})
 
-	router.HandleFunc("/v1/books", controller.GetBooksHandler).Methods(http.MethodGet)
-	router.HandleFunc("/v1/books", controller.CreateBooksHandler).Methods(http.MethodPost)
-	router.HandleFunc("/v1/books/{id}", controller.GetBook).Methods(http.MethodGet)
-	router.HandleFunc("/v1/books/{id}", controller.UpdateBook).Methods(http.MethodPut)
-	router.HandleFunc("/v1/books/{id}", controller.DeleteBook).Methods(http.MethodDelete)
+	router.HandleFunc("/v1/books", func(w http.ResponseWriter, r *http.Request) {
+		controller.GetBooksHandler(w, r, v, m)
+	}).Methods(http.MethodGet)
+
+	router.HandleFunc("/v1/books", func(w http.ResponseWriter, r *http.Request) {
+		controller.CreateBooksHandler(w, r, v, m)
+	}).Methods(http.MethodPost)
+
+	router.HandleFunc("/v1/books/{id}", func(w http.ResponseWriter, r *http.Request) {
+		controller.GetBook(w, r, v, m)
+	}).Methods(http.MethodGet)
+
+	router.HandleFunc("/v1/books/{id}", func(w http.ResponseWriter, r *http.Request) {
+		controller.UpdateBook(w, r, v, m)
+	}).Methods(http.MethodPut)
+
+	router.HandleFunc("/v1/books/{id}", func(w http.ResponseWriter, r *http.Request) {
+		controller.DeleteBook(w, r, v, m)
+	}).Methods(http.MethodDelete)
 }

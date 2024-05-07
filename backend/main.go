@@ -6,7 +6,6 @@ import (
 	"os"
 	"readinglistapp/config"
 	"readinglistapp/initialisers"
-	"readinglistapp/model"
 )
 
 var (
@@ -37,7 +36,7 @@ func main() {
 
 	port := os.Getenv("PORT")
 
-	model.SetDBClient(dbClient)
+	initialisers.SetDBClient(dbClient)
 
 	defer cleanup(dbClient.Close)
 

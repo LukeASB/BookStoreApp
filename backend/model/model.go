@@ -13,19 +13,11 @@ type Input struct {
 	Rating    float64  `json:"rating"`
 }
 
-var dbClient *initialisers.DB
-var collection *initialisers.BookCollection
+type Model struct {
+}
 
-/*
-Sets up the DB Client.
-
-Parameters:
-
-	param1: pointer of DB client
-*/
-func SetDBClient(client *initialisers.DB) {
-	dbClient = client
-	collection = initialisers.NewBookModel(dbClient)
+func NewModel() *Model {
+	return &Model{}
 }
 
 /*
@@ -40,7 +32,7 @@ Returns:
 	return1: database id of inserted value
 	return2: error
 */
-func Insert(input Input) (interface{}, *data.Book, error) {
+func (m *Model) Insert(input Input) (interface{}, *data.Book, error) {
 	data := &data.Book{
 		ID:        "",
 		Title:     input.Title,
@@ -50,7 +42,7 @@ func Insert(input Input) (interface{}, *data.Book, error) {
 		Rating:    input.Rating,
 	}
 
-	id, err := collection.Insert(data)
+	id, err := initialisers.Collection.Insert(data)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -65,8 +57,8 @@ Returns:
 	return1: slice of a pointer of books
 	return2: error
 */
-func GetAll() ([]*data.Book, error) {
-	data, err := collection.GetAll()
+func (m *Model) GetAll() ([]*data.Book, error) {
+	data, err := initialisers.Collection.GetAll()
 	if err != nil {
 		return nil, err
 	}
@@ -85,8 +77,8 @@ Returns:
 	return1: slice of a pointer of books
 	return2: error
 */
-func Get(id string) (*data.Book, error) {
-	data, err := collection.Get(id)
+func (m *Model) Get(id string) (*data.Book, error) {
+	data, err := initialisers.Collection.Get(id)
 	if err != nil {
 		return nil, err
 	}
@@ -106,8 +98,8 @@ Returns:
 	return1: slice of a pointer of books
 	return2: error
 */
-func Update(id string, data *data.Book) error {
-	err := collection.Update(data)
+func (m *Model) Update(id string, data *data.Book) error {
+	err := initialisers.Collection.Update(data)
 	if err != nil {
 		return err
 	}
@@ -125,8 +117,8 @@ Returns:
 
 	return1: error
 */
-func Delete(id string) error {
-	err := collection.Delete(id)
+func (m *Model) Delete(id string) error {
+	err := initialisers.Collection.Delete(id)
 	if err != nil {
 		return err
 	}

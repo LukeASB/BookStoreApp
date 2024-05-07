@@ -15,6 +15,9 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+var dbClient *DB
+var Collection *BookCollection
+
 type DB struct {
 	Client *mongo.Client
 }
@@ -67,6 +70,18 @@ func ConnectToDatabase() (*DB, error) {
 	defer cancel()
 
 	return &DB{Client: client}, nil
+}
+
+/*
+Sets up the DB Client.
+
+Parameters:
+
+	param1: pointer of DB client
+*/
+func SetDBClient(client *DB) {
+	dbClient = client
+	Collection = NewBookModel(dbClient)
 }
 
 /*

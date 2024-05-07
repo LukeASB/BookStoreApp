@@ -23,7 +23,7 @@ Parameters:
 	param1: w http.ResponseWriter
 	param2: r *http.Request
 */
-func HealthCheck(w http.ResponseWriter, r *http.Request) {
+func HealthCheck(w http.ResponseWriter, r *http.Request, v *view.View) {
 	if r.Method != http.MethodGet {
 		helper.HandleHTTPStatusError(w, http.StatusMethodNotAllowed)
 		return
@@ -35,7 +35,7 @@ func HealthCheck(w http.ResponseWriter, r *http.Request) {
 		Version:     os.Getenv("VERSION"),
 	}
 
-	jsonResponse, err := view.RenderJSON(view.Envelope{"healthcheck": res})
+	jsonResponse, err := v.RenderJSON(view.Envelope{"healthcheck": res})
 
 	if helper.IsHTTPStatusError(w, err, http.StatusInternalServerError) {
 		return
@@ -53,18 +53,18 @@ Parameters:
 	param1: w http.ResponseWriter
 	param2: r *http.Request
 */
-func Home(w http.ResponseWriter, r *http.Request) {
+func Home(w http.ResponseWriter, r *http.Request, v *view.View, m *model.Model) {
 	if r.URL.Path != "/" {
 		http.NotFound(w, r)
 		return
 	}
 
-	books, err := model.GetAll()
+	books, err := m.GetAll()
 	if helper.IsHTTPStatusError(w, err, http.StatusInternalServerError) {
 		return
 	}
 
-	err = view.BookHome(w, books)
+	err = v.BookHome(w, books)
 
 	if helper.IsHTTPStatusError(w, err, http.StatusInternalServerError) {
 		return
@@ -81,7 +81,7 @@ Parameters:
 	param1: w http.ResponseWriter
 	param2: r *http.Request
 */
-func BookView(w http.ResponseWriter, r *http.Request) {
+func BookView(w http.ResponseWriter, r *http.Request, v *view.View, m *model.Model) {
 	id := r.URL.Query().Get("id")
 
 	if len(id) == 0 {
@@ -89,13 +89,13 @@ func BookView(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	book, err := model.Get(id)
+	book, err := m.Get(id)
 
 	if helper.IsHTTPStatusError(w, err, http.StatusInternalServerError) {
 		return
 	}
 
-	err = view.BookView(w, id, book)
+	err = v.BookView(w, id, book)
 
 	if helper.IsHTTPStatusError(w, err, http.StatusInternalServerError) {
 		return
@@ -111,17 +111,17 @@ Parameters:
 	param1: w http.ResponseWriter
 	param2: r *http.Request
 */
-func BookCreate(w http.ResponseWriter, r *http.Request) {
+func BookCreate(w http.ResponseWriter, r *http.Request, v *view.View) {
 	switch r.Method {
 	case http.MethodGet:
-		err := view.BookCreateForm(w, r)
+		err := v.BookCreateForm(w, r)
 
 		if helper.IsHTTPStatusError(w, err, http.StatusInternalServerError) {
 			return
 		}
 
 	case http.MethodPost:
-		data, err := view.BookCreateProcess(w, r)
+		data, err := v.BookCreateProcess(w, r)
 
 		if helper.IsHTTPStatusError(w, err, http.StatusInternalServerError) {
 			return
@@ -179,15 +179,15 @@ Parameters:
 	param1: w http.ResponseWriter
 	param2: r *http.Request
 */
-func GetBooksHandler(w http.ResponseWriter, r *http.Request) {
+func GetBooksHandler(w http.ResponseWriter, r *http.Request, v *view.View, m *model.Model) {
 	fmt.Println("GetBooksHandler")
-	books, err := model.GetAll()
+	books, err := m.GetAll()
 
 	if helper.IsHTTPStatusError(w, err, http.StatusInternalServerError) {
 		return
 	}
 
-	jsonResponse, err := view.RenderJSON(view.Envelope{"books": books})
+	jsonResponse, err := v.RenderJSON(view.Envelope{"books": books})
 
 	if helper.IsHTTPStatusError(w, err, http.StatusInternalServerError) {
 		return
@@ -206,16 +206,16 @@ Parameters:
 	param1: w http.ResponseWriter
 	param2: r *http.Request
 */
-func CreateBooksHandler(w http.ResponseWriter, r *http.Request) {
+func CreateBooksHandler(w http.ResponseWriter, r *http.Request, v *view.View, m *model.Model) {
 	var input model.Input
 
-	err := view.ReadJSON(w, r, &input)
+	err := v.ReadJSON(w, r, &input)
 
 	if helper.IsHTTPStatusError(w, err, http.StatusBadRequest) {
 		return
 	}
 
-	id, book, err := model.Insert(input)
+	id, book, err := m.Insert(input)
 
 	if helper.IsHTTPStatusError(w, err, http.StatusInternalServerError) {
 		return
@@ -224,7 +224,7 @@ func CreateBooksHandler(w http.ResponseWriter, r *http.Request) {
 	headers := make(http.Header)
 	headers.Set("Location", fmt.Sprintf("v1/books/%s", id))
 
-	jsonResponse, err := view.RenderJSON(view.Envelope{"book": book})
+	jsonResponse, err := v.RenderJSON(view.Envelope{"book": book})
 
 	if helper.IsHTTPStatusError(w, err, http.StatusInternalServerError) {
 		return
@@ -243,7 +243,7 @@ Parameters:
 	param1: http.ResponseWriter
 	param2: *http.Request
 */
-func GetBook(w http.ResponseWriter, r *http.Request) {
+func GetBook(w http.ResponseWriter, r *http.Request, v *view.View, m *model.Model) {
 	var err error
 	vars := mux.Vars(r)
 	id := vars["id"]
@@ -253,7 +253,7 @@ func GetBook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	book, err := model.Get(id)
+	book, err := m.Get(id)
 
 	if err != nil {
 		switch {
@@ -265,7 +265,7 @@ func GetBook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	jsonResponse, err := view.RenderJSON(view.Envelope{"book": book})
+	jsonResponse, err := v.RenderJSON(view.Envelope{"book": book})
 
 	if helper.IsHTTPStatusError(w, err, http.StatusInternalServerError) {
 		return
@@ -285,7 +285,7 @@ Parameters:
 	param1: http.ResponseWriter
 	param2: *http.Request
 */
-func UpdateBook(w http.ResponseWriter, r *http.Request) {
+func UpdateBook(w http.ResponseWriter, r *http.Request, v *view.View, m *model.Model) {
 	var err error
 	vars := mux.Vars(r)
 	id := vars["id"]
@@ -295,7 +295,7 @@ func UpdateBook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	book, err := model.Get(id)
+	book, err := m.Get(id)
 
 	if err != nil {
 		switch {
@@ -315,7 +315,7 @@ func UpdateBook(w http.ResponseWriter, r *http.Request) {
 		Rating    *float64 `json:"rating"`
 	}
 
-	err = view.ReadJSON(w, r, &input)
+	err = v.ReadJSON(w, r, &input)
 
 	if helper.IsHTTPStatusError(w, err, http.StatusBadRequest) {
 		return
@@ -341,13 +341,13 @@ func UpdateBook(w http.ResponseWriter, r *http.Request) {
 		book.Rating = *input.Rating
 	}
 
-	err = model.Update(id, book)
+	err = m.Update(id, book)
 
 	if helper.IsHTTPStatusError(w, err, http.StatusInternalServerError) {
 		return
 	}
 
-	jsonResponse, err := view.RenderJSON(view.Envelope{"book": book})
+	jsonResponse, err := v.RenderJSON(view.Envelope{"book": book})
 
 	if helper.IsHTTPStatusError(w, err, http.StatusInternalServerError) {
 		return
@@ -367,7 +367,7 @@ Parameters:
 	param1: http.ResponseWriter
 	param2: *http.Request
 */
-func DeleteBook(w http.ResponseWriter, r *http.Request) {
+func DeleteBook(w http.ResponseWriter, r *http.Request, v *view.View, m *model.Model) {
 	var err error
 	vars := mux.Vars(r)
 	id := vars["id"]
@@ -377,7 +377,7 @@ func DeleteBook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = model.Delete(id)
+	err = m.Delete(id)
 
 	if err != nil {
 		switch {
@@ -393,7 +393,7 @@ func DeleteBook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	jsonResponse, err := view.RenderJSON(view.Envelope{"message": "book successfully deleted"})
+	jsonResponse, err := v.RenderJSON(view.Envelope{"message": "book successfully deleted"})
 
 	if helper.IsHTTPStatusError(w, err, http.StatusInternalServerError) {
 		return
