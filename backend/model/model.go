@@ -14,10 +14,11 @@ type Input struct {
 }
 
 type Model struct {
+	collection *initialisers.BookCollection
 }
 
-func NewModel() *Model {
-	return &Model{}
+func NewModel(collection *initialisers.BookCollection) *Model {
+	return &Model{collection: collection}
 }
 
 /*
@@ -42,7 +43,7 @@ func (m *Model) Insert(input Input) (interface{}, *data.Book, error) {
 		Rating:    input.Rating,
 	}
 
-	id, err := initialisers.Collection.Insert(data)
+	id, err := m.collection.Insert(data)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -58,7 +59,7 @@ Returns:
 	return2: error
 */
 func (m *Model) GetAll() ([]*data.Book, error) {
-	data, err := initialisers.Collection.GetAll()
+	data, err := m.collection.GetAll()
 	if err != nil {
 		return nil, err
 	}
@@ -78,7 +79,7 @@ Returns:
 	return2: error
 */
 func (m *Model) Get(id string) (*data.Book, error) {
-	data, err := initialisers.Collection.Get(id)
+	data, err := m.collection.Get(id)
 	if err != nil {
 		return nil, err
 	}
@@ -99,7 +100,7 @@ Returns:
 	return2: error
 */
 func (m *Model) Update(id string, data *data.Book) error {
-	err := initialisers.Collection.Update(data)
+	err := m.collection.Update(data)
 	if err != nil {
 		return err
 	}
@@ -118,7 +119,7 @@ Returns:
 	return1: error
 */
 func (m *Model) Delete(id string) error {
-	err := initialisers.Collection.Delete(id)
+	err := m.collection.Delete(id)
 	if err != nil {
 		return err
 	}

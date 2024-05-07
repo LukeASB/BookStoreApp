@@ -25,6 +25,8 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
+
+	initialisers.SetDBClient(dbClient)
 }
 
 /*
@@ -32,11 +34,9 @@ main is the entry point of the application. It sets up the router, initializes t
 and starts the server to listen on the specified port.
 */
 func main() {
-	router := config.SetUpRouter()
-
 	port := os.Getenv("PORT")
 
-	initialisers.SetDBClient(dbClient)
+	router := config.SetUpRouter()
 
 	defer cleanup(dbClient.Close)
 

@@ -3,6 +3,7 @@ package routes
 import (
 	"net/http"
 	controller "readinglistapp/controller"
+	"readinglistapp/initialisers"
 	"readinglistapp/model"
 	view "readinglistapp/view"
 
@@ -20,7 +21,7 @@ Parameters:
 */
 func SetUpRoutes(router *mux.Router) {
 	v := view.NewView()
-	m := model.NewModel()
+	m := model.NewModel(initialisers.Collection)
 
 	fileServer := http.FileServer(http.Dir("./ui/static/"))
 
