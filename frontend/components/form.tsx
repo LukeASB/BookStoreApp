@@ -7,7 +7,7 @@ interface Book {
     published: number;
     genres: string;
     rating: number;
-    [key: string]: string | number; // Index signature
+    [key: string]: string | number;
 }
 
 interface BookErr {
