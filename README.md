@@ -11,3 +11,6 @@ The app simplifies the process of sharing top book picks with friends and family
 
 ## How To
 See the Frontend/Backend README.md on how to execute.
+
+## Found this useful?
+[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/lukesb)
