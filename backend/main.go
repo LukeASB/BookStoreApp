@@ -6,6 +6,8 @@ import (
 	"os"
 	"readinglistapp/config"
 	"readinglistapp/initialisers"
+	"readinglistapp/model"
+	"readinglistapp/view"
 )
 
 var (
@@ -36,7 +38,11 @@ and starts the server to listen on the specified port.
 func main() {
 	port := os.Getenv("PORT")
 
-	router := config.SetUpRouter()
+	db := initialisers.Collection
+	v := view.NewView()
+	m := model.NewModel()
+
+	router := config.SetUpRouter(v, m, db)
 
 	defer cleanup(dbClient.Close)
 

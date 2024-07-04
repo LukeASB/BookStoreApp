@@ -2,7 +2,10 @@ package config
 
 import (
 	"net/http"
+	"readinglistapp/initialisers"
+	"readinglistapp/model"
 	"readinglistapp/routes"
+	"readinglistapp/view"
 
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
@@ -17,10 +20,10 @@ Returns:
 
 	return1: http.handler that can be used to serve HTTP requests.
 */
-func SetUpRouter() http.Handler {
+func SetUpRouter(v *view.View, m *model.Model, db *initialisers.BookCollection) http.Handler {
 	muxRouter := mux.NewRouter()
 
-	routes.SetUpRoutes(muxRouter)
+	routes.SetUpRoutes(muxRouter, v, m, db)
 
 	muxRouter.StrictSlash(false)
 
