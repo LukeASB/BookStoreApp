@@ -10,6 +10,10 @@ import (
 	"strings"
 )
 
+type IView interface {
+	NewView() *View
+}
+
 const (
 	BASEHTML   = "./ui/html/base.html"
 	NAVHTML    = "./ui/html/partials/nav.html"
@@ -26,7 +30,6 @@ type View struct {
 	CREATEHTML string
 }
 
-// Start converting to struct funcs
 func NewView() *View {
 	return &View{
 		BASEHTML:   "./ui/html/base.html",

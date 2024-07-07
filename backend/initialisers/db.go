@@ -15,22 +15,22 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-var dbClient *DB
-var Collection *BookCollection
-
-type DB struct {
-	Client *mongo.Client
+type IDB interface {
+	NewDB() *DB
 }
 
-type bookData struct {
-	ID        primitive.ObjectID `json:"_id" bson:"_id"`
-	CreatedAt time.Time          `json:"createdAt"`
-	Title     string             `json:"title"`
-	Published int                `json:"published,omitempty"`
-	Pages     int                `json:"pages,omitempty"`
-	Genres    []string           `json:"genres,omitempty"`
-	Rating    float64            `json:"rating,omitempty"`
-	Version   int32              `json:"version,omitempty"`
+type DB struct {
+	client *mongo.Client
+}
+
+func NewDB() (*DB, error) {
+	dbClient, err := connectToDatabase()
+
+	if err != nil {
+		return nil, err
+	}
+
+	return dbClient, nil
 }
 
 type BookCollection struct {
@@ -50,7 +50,7 @@ Returns:
 	return1: pointer DB
 	return2: error
 */
-func ConnectToDatabase() (*DB, error) {
+func connectToDatabase() (*DB, error) {
 	serverAPI := options.ServerAPI(options.ServerAPIVersion1)
 	opts := options.Client().ApplyURI(os.Getenv("DB_URL")).SetServerAPIOptions(serverAPI)
 
@@ -69,19 +69,11 @@ func ConnectToDatabase() (*DB, error) {
 	_, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	return &DB{Client: client}, nil
+	return &DB{client: client}, nil
 }
 
-/*
-Sets up the DB Client.
-
-Parameters:
-
-	param1: pointer of DB client
-*/
-func SetDBClient(client *DB) {
-	dbClient = client
-	Collection = NewBookModel(dbClient)
+func NewBookCollection(client *DB) *BookCollection {
+	return NewBookModel(client)
 }
 
 /*
@@ -94,7 +86,7 @@ Returns:
 return1: pointer DB
 */
 func (db *DB) Close() {
-	if err := db.Client.Disconnect(context.TODO()); err != nil {
+	if err := db.client.Disconnect(context.TODO()); err != nil {
 		panic(err)
 	}
 
@@ -115,7 +107,7 @@ Returns:
 return1: pointer BookCollection
 */
 func NewBookModel(db *DB) *BookCollection {
-	return &BookCollection{Collection: db.Client.Database("readinglist").Collection("books")}
+	return &BookCollection{Collection: db.client.Database("readinglist").Collection("books")}
 }
 
 /*
@@ -130,7 +122,7 @@ Returns:
 return1: interface{}, ID of the inserted document
 return2: error
 */
-func (bc *BookCollection) Insert(book *data.Book) (interface{}, error) {
+func (bc *BookCollection) Create(book *data.Book) (interface{}, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
@@ -139,7 +131,7 @@ func (bc *BookCollection) Insert(book *data.Book) (interface{}, error) {
 		book.CreatedAt = time.Now()
 	}
 
-	data := bookData{
+	data := data.BookData{
 		ID:        primitive.NewObjectID(),
 		CreatedAt: book.CreatedAt,
 		Title:     book.Title,
@@ -217,7 +209,7 @@ func (bc *BookCollection) GetAll() ([]*data.Book, error) {
 	var results []*data.Book
 
 	for cur.Next(context.TODO()) {
-		var elem bookData
+		var elem data.BookData
 		err := cur.Decode(&elem)
 
 		if err != nil {

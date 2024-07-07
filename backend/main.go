@@ -6,13 +6,13 @@ import (
 	"os"
 	"readinglistapp/config"
 	"readinglistapp/initialisers"
-	"readinglistapp/model"
-	"readinglistapp/view"
+	"readinglistapp/internal"
 )
 
 var (
-	dbClient *initialisers.DB
-	SiteURL  string
+	app     internal.App
+	DB      *initialisers.DB
+	SiteURL string
 )
 
 /*
@@ -21,14 +21,8 @@ and connecting to the database.
 If an error occurs during database connection, it panics.
 */
 func init() {
-	var err error
 	initialisers.LoadEnvVariables()
-	dbClient, err = initialisers.ConnectToDatabase()
-	if err != nil {
-		panic(err)
-	}
-
-	initialisers.SetDBClient(dbClient)
+	DB = app.NewDB()
 }
 
 /*
@@ -38,13 +32,15 @@ and starts the server to listen on the specified port.
 func main() {
 	port := os.Getenv("PORT")
 
-	db := initialisers.Collection
-	v := view.NewView()
-	m := model.NewModel()
+	app = internal.App{
+		View:  app.NewView(),
+		Model: app.NewModel(),
+		DB:    DB,
+	}
 
-	router := config.SetUpRouter(v, m, db)
+	router := config.SetUpRouter(app)
 
-	defer cleanup(dbClient.Close)
+	defer cleanup(DB.Close)
 
 	fmt.Printf("\nListening on port: %s", port)
 

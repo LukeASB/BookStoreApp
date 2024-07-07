@@ -5,15 +5,8 @@ import (
 	"readinglistapp/internal/data"
 )
 
-type Input struct {
-	Title     string   `json:"title"`
-	Published int      `json:"published"`
-	Pages     int      `json:"pages"`
-	Genres    []string `json:"genres"`
-	Rating    float64  `json:"rating"`
-}
-
-type Model struct {
+type IModel interface {
+	NewModel() *Model
 }
 
 func NewModel() *Model {
@@ -42,7 +35,7 @@ func (m *Model) Insert(db *initialisers.BookCollection, input Input) (interface{
 		Rating:    input.Rating,
 	}
 
-	id, err := db.Insert(data)
+	id, err := db.Create(data)
 	if err != nil {
 		return nil, nil, err
 	}

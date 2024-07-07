@@ -4,8 +4,7 @@ import (
 	"net/http"
 	controller "readinglistapp/controller"
 	"readinglistapp/initialisers"
-	"readinglistapp/model"
-	view "readinglistapp/view"
+	"readinglistapp/internal"
 
 	"github.com/gorilla/mux"
 )
@@ -19,43 +18,45 @@ Parameters:
 
 	param1: gorilla mux router
 */
-func SetUpRoutes(router *mux.Router, v *view.View, m *model.Model, db *initialisers.BookCollection) {
+func SetUpRoutes(router *mux.Router, app internal.IApp) {
+	booksCollection := initialisers.NewBookCollection(app.GetDB())
+
 	fileServer := http.FileServer(http.Dir("./ui/static/"))
 
 	// Register the file server handler with the /static/ route prefix
 	router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", fileServer))
 
 	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		controller.Home(w, r, v, m, db)
+		controller.Home(w, r, app.GetView(), app.GetModel(), booksCollection)
 	})
 	router.HandleFunc("/book/view", func(w http.ResponseWriter, r *http.Request) {
-		controller.BookView(w, r, v, m, db)
+		controller.BookView(w, r, app.GetView(), app.GetModel(), booksCollection)
 	})
 	router.HandleFunc("/book/create", func(w http.ResponseWriter, r *http.Request) {
-		controller.BookCreate(w, r, v)
+		controller.BookCreate(w, r, app.GetView())
 	})
 
 	router.HandleFunc("/v1/healthcheck", func(w http.ResponseWriter, r *http.Request) {
-		controller.HealthCheck(w, r, v)
+		controller.HealthCheck(w, r, app.GetView())
 	})
 
 	router.HandleFunc("/v1/books", func(w http.ResponseWriter, r *http.Request) {
-		controller.GetBooksHandler(w, r, v, m, db)
+		controller.GetBooksHandler(w, r, app.GetView(), app.GetModel(), booksCollection)
 	}).Methods(http.MethodGet)
 
 	router.HandleFunc("/v1/books", func(w http.ResponseWriter, r *http.Request) {
-		controller.CreateBooksHandler(w, r, v, m, db)
+		controller.CreateBooksHandler(w, r, app.GetView(), app.GetModel(), booksCollection)
 	}).Methods(http.MethodPost)
 
 	router.HandleFunc("/v1/books/{id}", func(w http.ResponseWriter, r *http.Request) {
-		controller.GetBook(w, r, v, m, db)
+		controller.GetBook(w, r, app.GetView(), app.GetModel(), booksCollection)
 	}).Methods(http.MethodGet)
 
 	router.HandleFunc("/v1/books/{id}", func(w http.ResponseWriter, r *http.Request) {
-		controller.UpdateBook(w, r, v, m, db)
+		controller.UpdateBook(w, r, app.GetView(), app.GetModel(), booksCollection)
 	}).Methods(http.MethodPut)
 
 	router.HandleFunc("/v1/books/{id}", func(w http.ResponseWriter, r *http.Request) {
-		controller.DeleteBook(w, r, v, m, db)
+		controller.DeleteBook(w, r, app.GetView(), app.GetModel(), booksCollection)
 	}).Methods(http.MethodDelete)
 }
