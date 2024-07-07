@@ -14,6 +14,7 @@ type IApp interface {
 	GetView() *view.View
 	GetModel() *model.Model
 	GetDB() *initialisers.DB
+	GetBookCollection() *initialisers.BookCollection
 }
 
 type App struct {
@@ -59,4 +60,8 @@ func (a App) NewDB() *initialisers.DB {
 		}
 	}
 	return a.DB
+}
+
+func (a App) GetBookCollection() *initialisers.BookCollection {
+	return initialisers.NewBookCollection(a.DB)
 }
