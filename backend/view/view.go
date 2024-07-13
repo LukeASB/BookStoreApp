@@ -10,8 +10,17 @@ import (
 	"strings"
 )
 
-type IView interface {
+type IViewNew interface {
 	NewView() *View
+}
+
+type IViewFuncs interface {
+	BookCreateForm(w http.ResponseWriter, r *http.Request) error
+	BookCreateProcess(w http.ResponseWriter, r *http.Request) ([]byte, error)
+	BookHome(w http.ResponseWriter, books []*data.Book) error
+	BookView(w http.ResponseWriter, id string, book *data.Book) error
+	ReadJSON(w http.ResponseWriter, r *http.Request, data any) error
+	RenderJSON(data Envelope) ([]byte, error)
 }
 
 const (

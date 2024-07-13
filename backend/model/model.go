@@ -5,8 +5,16 @@ import (
 	"readinglistapp/internal/data"
 )
 
-type IModel interface {
+type IModelNew interface {
 	NewModel() *Model
+}
+
+type IModelFuncs interface {
+	Delete(db initialisers.IBookCollection, id string) error
+	Get(db initialisers.IBookCollection, id string) (*data.Book, error)
+	GetAll(db initialisers.IBookCollection) ([]*data.Book, error)
+	Insert(db initialisers.IBookCollection, input Input) (interface{}, *data.Book, error)
+	Update(db initialisers.IBookCollection, id string, data *data.Book) error
 }
 
 func NewModel() *Model {
@@ -25,7 +33,7 @@ Returns:
 	return1: database id of inserted value
 	return2: error
 */
-func (m *Model) Insert(db *initialisers.BookCollection, input Input) (interface{}, *data.Book, error) {
+func (m *Model) Insert(db initialisers.IBookCollection, input Input) (interface{}, *data.Book, error) {
 	data := &data.Book{
 		ID:        "",
 		Title:     input.Title,
@@ -50,7 +58,7 @@ Returns:
 	return1: slice of a pointer of books
 	return2: error
 */
-func (m *Model) GetAll(db *initialisers.BookCollection) ([]*data.Book, error) {
+func (m *Model) GetAll(db initialisers.IBookCollection) ([]*data.Book, error) {
 	data, err := db.GetAll()
 	if err != nil {
 		return nil, err
@@ -70,7 +78,7 @@ Returns:
 	return1: slice of a pointer of books
 	return2: error
 */
-func (m *Model) Get(db *initialisers.BookCollection, id string) (*data.Book, error) {
+func (m *Model) Get(db initialisers.IBookCollection, id string) (*data.Book, error) {
 	data, err := db.Get(id)
 	if err != nil {
 		return nil, err
@@ -91,7 +99,7 @@ Returns:
 	return1: slice of a pointer of books
 	return2: error
 */
-func (m *Model) Update(db *initialisers.BookCollection, id string, data *data.Book) error {
+func (m *Model) Update(db initialisers.IBookCollection, id string, data *data.Book) error {
 	err := db.Update(data)
 	if err != nil {
 		return err
@@ -110,7 +118,7 @@ Returns:
 
 	return1: error
 */
-func (m *Model) Delete(db *initialisers.BookCollection, id string) error {
+func (m *Model) Delete(db initialisers.IBookCollection, id string) error {
 	err := db.Delete(id)
 	if err != nil {
 		return err

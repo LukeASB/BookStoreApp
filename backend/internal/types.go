@@ -8,8 +8,8 @@ import (
 )
 
 type IApp interface {
-	view.IView
-	model.IModel
+	view.IViewNew
+	model.IModelNew
 	initialisers.IDB
 	GetView() *view.View
 	GetModel() *model.Model
@@ -56,7 +56,7 @@ func (a App) NewDB() *initialisers.DB {
 		var err error
 		a.DB, err = initialisers.NewDB()
 		if err != nil {
-			log.Fatal("err")
+			log.Fatal(err)
 		}
 	}
 	return a.DB
