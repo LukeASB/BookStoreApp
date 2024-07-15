@@ -75,6 +75,11 @@ func TestUpdateModel(t *testing.T) {
 
 	mockUpdateResult := &mongo.UpdateResult{}
 
+	mockCollection.UpdateOneFunc = func(ctx context.Context, filter interface{}, update interface{}, opts ...*options.UpdateOptions) (*mongo.UpdateResult, error) {
+		// You can add assertions or custom logic here if needed
+		return mockUpdateResult, nil
+	}
+
 	bookID := "507f1f77bcf86cd799439011"
 
 	// Example data for update
@@ -85,11 +90,6 @@ func TestUpdateModel(t *testing.T) {
 		Genres:  []string{"Fantasy"},
 		Rating:  4.2,
 		Version: 2,
-	}
-
-	mockCollection.UpdateOneFunc = func(ctx context.Context, filter interface{}, update interface{}, opts ...*options.UpdateOptions) (*mongo.UpdateResult, error) {
-		// You can add assertions or custom logic here if needed
-		return mockUpdateResult, nil
 	}
 
 	err := model.Update(bookCollection, bookID, bookToUpdate)
@@ -106,11 +106,11 @@ func TestDelete(t *testing.T) {
 
 	mockDeleteResult := &mongo.DeleteResult{}
 
-	bookID := "507f1f77bcf86cd799439011"
-
 	mockCollection.DeleteManyFunc = func(ctx context.Context, filter interface{}, opts ...*options.DeleteOptions) (*mongo.DeleteResult, error) {
 		return mockDeleteResult, nil
 	}
+
+	bookID := "507f1f77bcf86cd799439011"
 
 	err := model.Delete(bookCollection, bookID)
 
