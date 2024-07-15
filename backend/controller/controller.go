@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	helper "readinglistapp/helper"
+	"readinglistapp/initialisers"
 	"readinglistapp/model"
 	"readinglistapp/view"
 
@@ -23,7 +24,7 @@ Parameters:
 	param1: w http.ResponseWriter
 	param2: r *http.Request
 */
-func HealthCheck(w http.ResponseWriter, r *http.Request, v *view.View) {
+func HealthCheck(w http.ResponseWriter, r *http.Request, v view.IViewFuncs) {
 	if r.Method != http.MethodGet {
 		helper.HandleHTTPStatusError(w, http.StatusMethodNotAllowed)
 		return
@@ -53,13 +54,13 @@ Parameters:
 	param1: w http.ResponseWriter
 	param2: r *http.Request
 */
-func Home(w http.ResponseWriter, r *http.Request, v *view.View, m *model.Model) {
+func Home(w http.ResponseWriter, r *http.Request, v view.IViewFuncs, m model.IModelFuncs, bookCollection initialisers.IBookCollection) {
 	if r.URL.Path != "/" {
 		http.NotFound(w, r)
 		return
 	}
 
-	books, err := m.GetAll()
+	books, err := m.GetAll(bookCollection)
 	if helper.IsHTTPStatusError(w, err, http.StatusInternalServerError) {
 		return
 	}
@@ -81,7 +82,7 @@ Parameters:
 	param1: w http.ResponseWriter
 	param2: r *http.Request
 */
-func BookView(w http.ResponseWriter, r *http.Request, v *view.View, m *model.Model) {
+func BookView(w http.ResponseWriter, r *http.Request, v view.IViewFuncs, m model.IModelFuncs, bookCollection initialisers.IBookCollection) {
 	id := r.URL.Query().Get("id")
 
 	if len(id) == 0 {
@@ -89,7 +90,7 @@ func BookView(w http.ResponseWriter, r *http.Request, v *view.View, m *model.Mod
 		return
 	}
 
-	book, err := m.Get(id)
+	book, err := m.Get(bookCollection, id)
 
 	if helper.IsHTTPStatusError(w, err, http.StatusInternalServerError) {
 		return
@@ -111,7 +112,7 @@ Parameters:
 	param1: w http.ResponseWriter
 	param2: r *http.Request
 */
-func BookCreate(w http.ResponseWriter, r *http.Request, v *view.View) {
+func BookCreate(w http.ResponseWriter, r *http.Request, v view.IViewFuncs) {
 	switch r.Method {
 	case http.MethodGet:
 		err := v.BookCreateForm(w, r)
@@ -179,9 +180,9 @@ Parameters:
 	param1: w http.ResponseWriter
 	param2: r *http.Request
 */
-func GetBooksHandler(w http.ResponseWriter, r *http.Request, v *view.View, m *model.Model) {
+func GetBooksHandler(w http.ResponseWriter, r *http.Request, v view.IViewFuncs, m model.IModelFuncs, bookCollection initialisers.IBookCollection) {
 	fmt.Println("GetBooksHandler")
-	books, err := m.GetAll()
+	books, err := m.GetAll(bookCollection)
 
 	if helper.IsHTTPStatusError(w, err, http.StatusInternalServerError) {
 		return
@@ -206,7 +207,7 @@ Parameters:
 	param1: w http.ResponseWriter
 	param2: r *http.Request
 */
-func CreateBooksHandler(w http.ResponseWriter, r *http.Request, v *view.View, m *model.Model) {
+func CreateBooksHandler(w http.ResponseWriter, r *http.Request, v view.IViewFuncs, m model.IModelFuncs, bookCollection initialisers.IBookCollection) {
 	var input model.Input
 
 	err := v.ReadJSON(w, r, &input)
@@ -215,7 +216,7 @@ func CreateBooksHandler(w http.ResponseWriter, r *http.Request, v *view.View, m 
 		return
 	}
 
-	id, book, err := m.Insert(input)
+	id, book, err := m.Insert(bookCollection, input)
 
 	if helper.IsHTTPStatusError(w, err, http.StatusInternalServerError) {
 		return
@@ -243,7 +244,7 @@ Parameters:
 	param1: http.ResponseWriter
 	param2: *http.Request
 */
-func GetBook(w http.ResponseWriter, r *http.Request, v *view.View, m *model.Model) {
+func GetBook(w http.ResponseWriter, r *http.Request, v view.IViewFuncs, m model.IModelFuncs, bookCollection initialisers.IBookCollection) {
 	var err error
 	vars := mux.Vars(r)
 	id := vars["id"]
@@ -253,7 +254,7 @@ func GetBook(w http.ResponseWriter, r *http.Request, v *view.View, m *model.Mode
 		return
 	}
 
-	book, err := m.Get(id)
+	book, err := m.Get(bookCollection, id)
 
 	if err != nil {
 		switch {
@@ -285,7 +286,7 @@ Parameters:
 	param1: http.ResponseWriter
 	param2: *http.Request
 */
-func UpdateBook(w http.ResponseWriter, r *http.Request, v *view.View, m *model.Model) {
+func UpdateBook(w http.ResponseWriter, r *http.Request, v view.IViewFuncs, m model.IModelFuncs, bookCollection initialisers.IBookCollection) {
 	var err error
 	vars := mux.Vars(r)
 	id := vars["id"]
@@ -295,7 +296,7 @@ func UpdateBook(w http.ResponseWriter, r *http.Request, v *view.View, m *model.M
 		return
 	}
 
-	book, err := m.Get(id)
+	book, err := m.Get(bookCollection, id)
 
 	if err != nil {
 		switch {
@@ -341,7 +342,7 @@ func UpdateBook(w http.ResponseWriter, r *http.Request, v *view.View, m *model.M
 		book.Rating = *input.Rating
 	}
 
-	err = m.Update(id, book)
+	err = m.Update(bookCollection, id, book)
 
 	if helper.IsHTTPStatusError(w, err, http.StatusInternalServerError) {
 		return
@@ -367,7 +368,7 @@ Parameters:
 	param1: http.ResponseWriter
 	param2: *http.Request
 */
-func DeleteBook(w http.ResponseWriter, r *http.Request, v *view.View, m *model.Model) {
+func DeleteBook(w http.ResponseWriter, r *http.Request, v view.IViewFuncs, m model.IModelFuncs, bookCollection initialisers.IBookCollection) {
 	var err error
 	vars := mux.Vars(r)
 	id := vars["id"]
@@ -377,7 +378,7 @@ func DeleteBook(w http.ResponseWriter, r *http.Request, v *view.View, m *model.M
 		return
 	}
 
-	err = m.Delete(id)
+	err = m.Delete(bookCollection, id)
 
 	if err != nil {
 		switch {

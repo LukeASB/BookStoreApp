@@ -5,6 +5,13 @@ Users can browse through existing book lists and create their own recommendation
 
 The app simplifies the process of sharing top book picks with friends and family, eliminating the need to respond to individual requests.
 
+Home:
+[Home View Screenshot](https://raw.githubusercontent.com/LukeASB/BookStoreApp/blob/main/View-home.png)
+
+Add Book:
+[Add Book Screenshot](https://raw.githubusercontent.com/LukeASB/BookStoreApp/blob/main/View-addbook.png)
+
+
 # Tech Stack
 - Backend: Golang, MongoDB
 - Frontend: ReactJS Framework created with with Nextjs and TypeScript

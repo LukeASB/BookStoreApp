@@ -5,20 +5,20 @@ import (
 	"readinglistapp/internal/data"
 )
 
-type Input struct {
-	Title     string   `json:"title"`
-	Published int      `json:"published"`
-	Pages     int      `json:"pages"`
-	Genres    []string `json:"genres"`
-	Rating    float64  `json:"rating"`
+type IModelNew interface {
+	NewModel() *Model
 }
 
-type Model struct {
-	collection *initialisers.BookCollection
+type IModelFuncs interface {
+	Delete(db initialisers.IBookCollection, id string) error
+	Get(db initialisers.IBookCollection, id string) (*data.Book, error)
+	GetAll(db initialisers.IBookCollection) ([]*data.Book, error)
+	Insert(db initialisers.IBookCollection, input Input) (interface{}, *data.Book, error)
+	Update(db initialisers.IBookCollection, id string, data *data.Book) error
 }
 
-func NewModel(collection *initialisers.BookCollection) *Model {
-	return &Model{collection: collection}
+func NewModel() *Model {
+	return &Model{}
 }
 
 /*
@@ -33,7 +33,7 @@ Returns:
 	return1: database id of inserted value
 	return2: error
 */
-func (m *Model) Insert(input Input) (interface{}, *data.Book, error) {
+func (m *Model) Insert(db initialisers.IBookCollection, input Input) (interface{}, *data.Book, error) {
 	data := &data.Book{
 		ID:        "",
 		Title:     input.Title,
@@ -43,7 +43,7 @@ func (m *Model) Insert(input Input) (interface{}, *data.Book, error) {
 		Rating:    input.Rating,
 	}
 
-	id, err := m.collection.Insert(data)
+	id, err := db.Create(data)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -58,8 +58,8 @@ Returns:
 	return1: slice of a pointer of books
 	return2: error
 */
-func (m *Model) GetAll() ([]*data.Book, error) {
-	data, err := m.collection.GetAll()
+func (m *Model) GetAll(db initialisers.IBookCollection) ([]*data.Book, error) {
+	data, err := db.GetAll()
 	if err != nil {
 		return nil, err
 	}
@@ -78,8 +78,8 @@ Returns:
 	return1: slice of a pointer of books
 	return2: error
 */
-func (m *Model) Get(id string) (*data.Book, error) {
-	data, err := m.collection.Get(id)
+func (m *Model) Get(db initialisers.IBookCollection, id string) (*data.Book, error) {
+	data, err := db.Get(id)
 	if err != nil {
 		return nil, err
 	}
@@ -99,8 +99,8 @@ Returns:
 	return1: slice of a pointer of books
 	return2: error
 */
-func (m *Model) Update(id string, data *data.Book) error {
-	err := m.collection.Update(data)
+func (m *Model) Update(db initialisers.IBookCollection, id string, data *data.Book) error {
+	err := db.Update(data)
 	if err != nil {
 		return err
 	}
@@ -118,8 +118,8 @@ Returns:
 
 	return1: error
 */
-func (m *Model) Delete(id string) error {
-	err := m.collection.Delete(id)
+func (m *Model) Delete(db initialisers.IBookCollection, id string) error {
+	err := db.Delete(id)
 	if err != nil {
 		return err
 	}

@@ -10,6 +10,19 @@ import (
 	"strings"
 )
 
+type IViewNew interface {
+	NewView() *View
+}
+
+type IViewFuncs interface {
+	BookCreateForm(w http.ResponseWriter, r *http.Request) error
+	BookCreateProcess(w http.ResponseWriter, r *http.Request) ([]byte, error)
+	BookHome(w http.ResponseWriter, books []*data.Book) error
+	BookView(w http.ResponseWriter, id string, book *data.Book) error
+	ReadJSON(w http.ResponseWriter, r *http.Request, data any) error
+	RenderJSON(data Envelope) ([]byte, error)
+}
+
 const (
 	BASEHTML   = "./ui/html/base.html"
 	NAVHTML    = "./ui/html/partials/nav.html"
@@ -26,7 +39,6 @@ type View struct {
 	CREATEHTML string
 }
 
-// Start converting to struct funcs
 func NewView() *View {
 	return &View{
 		BASEHTML:   "./ui/html/base.html",

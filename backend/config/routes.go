@@ -2,6 +2,7 @@ package config
 
 import (
 	"net/http"
+	"readinglistapp/internal"
 	"readinglistapp/routes"
 
 	"github.com/gorilla/mux"
@@ -17,10 +18,10 @@ Returns:
 
 	return1: http.handler that can be used to serve HTTP requests.
 */
-func SetUpRouter() http.Handler {
+func SetUpRouter(app internal.IApp) http.Handler {
 	muxRouter := mux.NewRouter()
 
-	routes.SetUpRoutes(muxRouter)
+	routes.SetUpRoutes(muxRouter, app)
 
 	muxRouter.StrictSlash(false)
 
