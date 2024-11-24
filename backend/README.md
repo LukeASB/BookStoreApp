@@ -68,8 +68,3 @@ type bookData struct {
 ## Dependencies
 - MongoDB: You can use a different database, but you'll need to update `db.go` accordingly.
 - Required Go modules are listed in `go.mod`.
-
-## Future Improvements
-- **Extend UI with ReactJS**: Enhance user experience and interactivity by migrating the frontend to ReactJS.
-- **Permissions Management**: Implement user privilege checks to restrict CRUD operations to admin users only.
-
